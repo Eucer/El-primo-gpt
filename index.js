@@ -53,14 +53,13 @@ client.on('message', async (message) => {
       size: '1024x1024',
     });
 
-    // primero, descargamos la imagen de la url
+    
     let filename = 'myImage.jpg';
     let file = fs.createWriteStream(filename);
     let request = https.get(response.data.data[0].url, function (response) {
       response.pipe(file);
     });
 
-    // una vez que la imagen se descarga, la enviamos
     file.on('finish', function () {
       let media = MessageMedia.fromFilePath('./' + filename);
       client.sendMessage(message.from, media);
