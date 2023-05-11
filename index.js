@@ -6,7 +6,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const configuration = new Configuration({
-  apiKey: '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',
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 const openai = new OpenAIApi(configuration);
@@ -34,7 +34,7 @@ client.on('message', async (message) => {
       messages: [
         {
           role: 'system',
-          content: `Eres un asistente que contesta todo bien y corto, llamado El primo , tu jefe directo es Germys.`,
+          content: `Eres un asistente que contesta todo bien y corto, llamado El primo`,
         },
         {
           role: 'user',
@@ -70,7 +70,7 @@ client.on('message', async (message) => {
 
 async function getResponse() {
   const response = await openai.createImage({
-    prompt: 'Un perro rojo con un sombrero de copa',
+    prompt: 'Un robot vinci style con el logo de whatsapp',
     n: 1,
     size: '1024x1024',
   });
