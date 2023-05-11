@@ -4,7 +4,7 @@ const fs = require('fs');
 const https = require('https');
 const dotenv = require('dotenv');
 dotenv.config();
-console.log(process.env.OPENAI_API_KEY);
+
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
