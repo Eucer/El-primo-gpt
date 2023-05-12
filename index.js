@@ -4,7 +4,8 @@ const fs = require('fs');
 const https = require('https');
 const dotenv = require('dotenv');
 dotenv.config();
-
+const googleTTS = require('google-tts-api');
+const axios = require('axios');
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -44,8 +45,34 @@ client.on('message', async (message) => {
     });
     const generatedText = `${response.data.choices[0].message.content}`;
 
-    client.sendMessage(message.from, generatedText.trim());
+    const url = googleTTS.getAudioUrl(generatedText.trim(), {
+      lang: 'es-us',
+      slow: false,
+      host: 'https://translate.google.com',
+    });
+
+    // Descargar el archivo de audio MP3 desde la URL
+    const audioResponse = await axios({
+      url,
+      method: 'GET',
+      responseType: 'stream',
+    });
+
+    // Escribir el archivo de audio descargado en el disco
+    const writer = fs.createWriteStream('./output.mp3');
+    audioResponse.data.pipe(writer);
+
+    writer.on('finish', () => {
+      // Enviar el archivo de audio
+      let media = MessageMedia.fromFilePath('./output.mp3');
+      client.sendMessage(message.from, media);
+    });
+
+    writer.on('error', (error) => {
+      console.error(error);
+    });
   }
+
   if (message.body.toLowerCase().includes('imagen')) {
     const response = await openai.createImage({
       prompt: message.body,
@@ -63,6 +90,7 @@ client.on('message', async (message) => {
     // una vez que la imagen se descarga, la enviamos
     file.on('finish', function () {
       let media = MessageMedia.fromFilePath('./' + filename);
+
       client.sendMessage(message.from, media);
     });
   }
